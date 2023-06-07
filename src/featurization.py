@@ -8,6 +8,8 @@ from src.utils import load_config
 def get_features(dataset):
 
     features = dataset.copy()
+    features['sepal_length_to_sepal_width'] = features['sepal_length'] / features['sepal_width']
+    features['petal_length_to_petal_width'] = features['petal_length'] / features['petal_width']
 
     return features
 
