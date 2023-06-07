@@ -1,0 +1,44 @@
+stages:
+  data_load:
+    cmd: python src/data_load.py --config=params.yaml
+    deps:
+    - src/data_load.py
+    outs:
+    - data/classes.json
+    - data/iris.csv
+  feature_extraction:
+    cmd: python src/featurization.py --config=params.yaml
+    deps:
+    - data/iris.csv
+    - src/featurization.py
+    outs:
+    - data/iris_featurized.csv
+  split_dataset:
+    cmd: python src/split_dataset.py --config=params.yaml
+    deps:
+    - data/iris_featurized.csv
+    - src/split_dataset.py
+    params:
+    - data_split
+    - featurize
+    outs:
+    - data/test.csv
+    - data/train.csv
+  train:
+    cmd: python src/train.py --config=params.yaml
+    deps:
+    - data/train.csv
+    - src/train.py
+    outs:
+    - models/model.joblib
+  evaluate:
+    cmd: python src/evaluate.py --config=params.yaml
+    deps:
+    - data/classes.json
+    - data/test.csv
+    - models/model.joblib
+    - src/evaluate.py
+    metrics:
+    - reports/metrics.json
+    plots:
+    - reports/cm.csv

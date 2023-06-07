@@ -1,0 +1,88 @@
+schema: '2.0'
+stages:
+  data_load:
+    cmd: python src/data_load.py --config=params.yaml
+    deps:
+    - path: src/data_load.py
+      md5: 09e8379a8a9f1c3adfd7418fd9f0d3e8
+      size: 951
+    outs:
+    - path: data/classes.json
+      md5: d4b044a096165faab992c4d950ee1f15
+      size: 56
+    - path: data/iris.csv
+      md5: 4224576f0267bf88902f87f0f6200967
+      size: 2757
+  feature_extraction:
+    cmd: python src/featurization.py --config=params.yaml
+    deps:
+    - path: data/iris.csv
+      md5: 4224576f0267bf88902f87f0f6200967
+      size: 2757
+    - path: src/featurization.py
+      md5: e052b53a6f40158babe62178c5a25c91
+      size: 725
+    outs:
+    - path: data/iris_featurized.csv
+      md5: 4224576f0267bf88902f87f0f6200967
+      size: 2757
+  split_dataset:
+    cmd: python src/split_dataset.py --config=params.yaml
+    deps:
+    - path: data/iris_featurized.csv
+      md5: 4224576f0267bf88902f87f0f6200967
+      size: 2757
+    - path: src/split_dataset.py
+      md5: 1b93400f15fcf2b599c36d1d67c115ff
+      size: 909
+    params:
+      params.yaml:
+        data_split:
+          test_size: 0.2
+          train_path: data/train.csv
+          test_path: data/test.csv
+        featurize:
+          features_path: data/iris_featurized.csv
+          target_column: target
+    outs:
+    - path: data/test.csv
+      md5: 267bfa51ad9743b43b712d57b227f629
+      size: 597
+    - path: data/train.csv
+      md5: 62ad220902012b3562015caf7c38f7e7
+      size: 2217
+  train:
+    cmd: python src/train.py --config=params.yaml
+    deps:
+    - path: data/train.csv
+      md5: 62ad220902012b3562015caf7c38f7e7
+      size: 2217
+    - path: src/train.py
+      md5: a90fd6f034e42aef14d1454c04ce7218
+      size: 1002
+    outs:
+    - path: models/model.joblib
+      md5: 014a717f89df0618ea3db1fda26293b6
+      size: 975
+  evaluate:
+    cmd: python src/evaluate.py --config=params.yaml
+    deps:
+    - path: data/classes.json
+      md5: d4b044a096165faab992c4d950ee1f15
+      size: 56
+    - path: data/test.csv
+      md5: 267bfa51ad9743b43b712d57b227f629
+      size: 597
+    - path: models/model.joblib
+      md5: 014a717f89df0618ea3db1fda26293b6
+      size: 975
+    - path: src/evaluate.py
+      md5: 2f6a216bb6c307da40c56fdab83d7391
+      size: 1300
+    outs:
+    - path: reports/cm.csv
+      md5: 82534b7008e021ce589a6536af98207c
+      size: 626
+    - path: reports/metrics.json
+      md5: 94ff3def6a0c9b0d3238a3ce0f2379d9
+      size: 33
